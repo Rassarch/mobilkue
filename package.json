@@ -11,6 +11,8 @@
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.7.0",
     "@prisma/client": "^7.7.0",
+    "@tidbcloud/prisma-adapter": "^6.17.0",
+    "@tidbcloud/serverless": "^0.3.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",

@@ -6,19 +6,23 @@ const globalForPrisma = global as unknown as {
 };
 
 const createPrismaClient = () => {
-  const url = process.env.DATABASE_URL;
+  const adapter = new PrismaMariaDb({
+    host: process.env.TIDB_HOST || "gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
+    port: Number(process.env.TIDB_PORT || 4000),
+    user: process.env.TIDB_USER || "2PVtTjBcgFUDZjP.root",
+    password: process.env.TIDB_PASSWORD || "UqHh33Gnjn5EN4LS",
+    database: process.env.TIDB_DATABASE || "test",
+    ssl: { rejectUnauthorized: true },
+  });
 
-  if (!url) {
-    throw new Error("DATABASE_URL is missing. Please check your environment variables.");
-  }
-  
-  const adapter = new PrismaMariaDb(url);
-  return new PrismaClient({ adapter });
+  return new PrismaClient({
+    adapter,
+    log: ["error", "warn"],
+  });
 };
 
 // Gunakan Proxy untuk inisialisasi malas (lazy initialization).
-// Ini mencegah crash saat fase "collecting configuration" di Vercel
-// karena client hanya akan dibuat saat pertama kali properti prisma diakses.
+// Ini mencegah crash saat fase "collecting configuration" di Vercel.
 export const prisma = new Proxy({} as PrismaClient, {
   get(target, prop) {
     if (!globalForPrisma.prisma) {
@@ -32,4 +36,4 @@ export const prisma = new Proxy({} as PrismaClient, {
   }
 });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
