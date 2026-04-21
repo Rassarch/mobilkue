@@ -8,20 +8,28 @@ const globalForPrisma = global as unknown as {
 const createPrismaClient = () => {
   const url = process.env.DATABASE_URL;
 
-  // 1. Jika URL tidak ada (misal saat build), gunakan client standar tanpa adapter 
-  // agar tidak crash saat "collecting page configuration".
   if (!url) {
-    return new PrismaClient();
+    throw new Error("DATABASE_URL is missing. Please check your environment variables.");
   }
   
-  // 2. Inisialisasi adapter langsung dengan URL database (Prisma 7)
   const adapter = new PrismaMariaDb(url);
-  
-  // 3. Return client dengan adapter tersebut
   return new PrismaClient({ adapter });
 };
 
+// Gunakan Proxy untuk inisialisasi malas (lazy initialization).
+// Ini mencegah crash saat fase "collecting configuration" di Vercel
+// karena client hanya akan dibuat saat pertama kali properti prisma diakses.
+export const prisma = new Proxy({} as PrismaClient, {
+  get(target, prop) {
+    if (!globalForPrisma.prisma) {
+      globalForPrisma.prisma = createPrismaClient();
+    }
+    const value = (globalForPrisma.prisma as any)[prop];
+    if (typeof value === 'function') {
+      return value.bind(globalForPrisma.prisma);
+    }
+    return value;
+  }
+});
 
-export const prisma = globalForPrisma.prisma || createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
