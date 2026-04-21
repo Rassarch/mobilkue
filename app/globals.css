@@ -1,26 +1,57 @@
+/* 1. Import Utama Tailwind v4 */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+/* 2. Definisi Variabel & Base Styles */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --blue: #1944F1;
+    --blue-hover: #1033d4;
+    --blue-dim: rgba(25, 68, 241, 0.08);
+    --base: #F5F3F3;
+  }
+
+  html {
+    overflow-x: hidden;
+    width: 100%;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    background-color: var(--base); /* Opsional: pakai variabel base kamu */
+  }
+
+  * {
+    box-sizing: border-box;
+    min-width: 0;
+    /* Gunakan variabel warna v4 untuk border global */
+    border-color: var(--color-slate-200);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* 3. Custom Utilities (Cara v4) */
+@utility glass-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 0.5px solid rgba(255, 255, 255, 0.8);
+}
+
+@utility glass-surface {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 0.5px solid rgba(255, 255, 255, 0.80);
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

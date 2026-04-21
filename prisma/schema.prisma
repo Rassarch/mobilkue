@@ -1,0 +1,36 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Car {
+  id           String     @id @default(uuid())
+  title        String
+  slug         String     @unique
+  price        Int
+  year         Int
+  brand        String
+  mileage      Int
+  transmission String
+  fuelType     String
+  description  String
+  isSold       Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  images       CarImage[] // relation instead of primitive array
+}
+
+model CarImage {
+  id     String  @id @default(uuid())
+  url    String
+  carId  String
+  car    Car     @relation(fields: [carId], references: [id])
+}
