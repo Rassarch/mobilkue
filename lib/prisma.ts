@@ -6,10 +6,18 @@ const globalForPrisma = global as unknown as {
 };
 
 const createPrismaClient = () => {
-  // 1. Inisialisasi adapter langsung dengan URL database (Prisma 7)
-  const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
+  const url = process.env.DATABASE_URL;
+
+  // 1. Jika URL tidak ada (misal saat build), gunakan client standar tanpa adapter 
+  // agar tidak crash saat "collecting page configuration".
+  if (!url) {
+    return new PrismaClient();
+  }
   
-  // 2. Return client dengan adapter tersebut
+  // 2. Inisialisasi adapter langsung dengan URL database (Prisma 7)
+  const adapter = new PrismaMariaDb(url);
+  
+  // 3. Return client dengan adapter tersebut
   return new PrismaClient({ adapter });
 };
 
