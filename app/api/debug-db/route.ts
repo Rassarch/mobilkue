@@ -6,45 +6,36 @@ export async function GET() {
   const diagnostics: Record<string, unknown> = {
     timestamp: new Date().toISOString(),
     env: {
-      TIDB_HOST: process.env.TIDB_HOST ? "✅ set" : "❌ MISSING",
-      TIDB_PORT: process.env.TIDB_PORT ? "✅ set" : "❌ MISSING",
-      TIDB_USER: process.env.TIDB_USER ? "✅ set" : "❌ MISSING",
-      TIDB_PASSWORD: process.env.TIDB_PASSWORD ? "✅ (hidden)" : "❌ MISSING",
-      TIDB_DATABASE: process.env.TIDB_DATABASE ? "✅ set" : "❌ MISSING",
       DATABASE_URL: process.env.DATABASE_URL ? "✅ (hidden)" : "❌ MISSING",
     },
   };
 
   try {
-    const { PrismaMariaDb } = await import("@prisma/adapter-mariadb");
+    const { PrismaTiDBServerless } = await import("@/lib/tidb-adapter");
     const { PrismaClient } = await import("@prisma/client");
 
-    const adapter = new PrismaMariaDb({
-      host: process.env.TIDB_HOST || "gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
-      port: Number(process.env.TIDB_PORT || 4000),
-      user: process.env.TIDB_USER || "2PVtTjBcgFUDZjP.root",
-      password: process.env.TIDB_PASSWORD || "UqHh33Gnjn5EN4LS",
-      database: process.env.TIDB_DATABASE || "test",
-      ssl: { rejectUnauthorized: true },
-    });
+    const url = process.env.DATABASE_URL
+      || "mysql://2PVtTjBcgFUDZjP.root:UqHh33Gnjn5EN4LS@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test";
 
+    const adapter = new PrismaTiDBServerless({ url });
     const prisma = new PrismaClient({ adapter });
 
     const carCount = await prisma.car.count();
     await prisma.$disconnect();
 
     diagnostics.database = {
-      status: "✅ Connected",
+      status: "✅ Connected via HTTPS",
       carCount,
     };
   } catch (error: unknown) {
-    const err = error as Error & { code?: string; errno?: number };
+    const err = error as Error & { code?: string; errno?: number; cause?: Error };
     diagnostics.database = {
       status: "❌ Failed",
       message: err.message,
       code: err.code,
       errno: err.errno,
-      stack: err.stack?.split("\n").slice(0, 5),
+      cause: err.cause?.message,
+      stack: err.stack?.split("\n").slice(0, 8),
     };
   }
 

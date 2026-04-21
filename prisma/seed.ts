@@ -1,15 +1,9 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaTiDBServerless } from "../lib/tidb-adapter";
 
-const adapter = new PrismaMariaDb({
-  host: "gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
-  port: 4000,
-  user: "2PVtTjBcgFUDZjP.root",
-  password: "UqHh33Gnjn5EN4LS",
-  database: "test",
-  ssl: { rejectUnauthorized: true },
-});
+const url = process.env.DATABASE_URL!;
+const adapter = new PrismaTiDBServerless({ url });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {

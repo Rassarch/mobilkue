@@ -1,19 +1,17 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaTiDBServerless } from "./tidb-adapter";
 
 const globalForPrisma = global as unknown as {
   prisma: PrismaClient;
 };
 
 const createPrismaClient = () => {
-  const adapter = new PrismaMariaDb({
-    host: process.env.TIDB_HOST || "gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
-    port: Number(process.env.TIDB_PORT || 4000),
-    user: process.env.TIDB_USER || "2PVtTjBcgFUDZjP.root",
-    password: process.env.TIDB_PASSWORD || "UqHh33Gnjn5EN4LS",
-    database: process.env.TIDB_DATABASE || "test",
-    ssl: { rejectUnauthorized: true },
-  });
+  // Use DATABASE_URL in mysql:// format — the custom adapter parses it
+  // and connects via HTTPS (not TCP), which works on Vercel serverless.
+  const url = process.env.DATABASE_URL
+    || "mysql://2PVtTjBcgFUDZjP.root:UqHh33Gnjn5EN4LS@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test";
+
+  const adapter = new PrismaTiDBServerless({ url });
 
   return new PrismaClient({
     adapter,
