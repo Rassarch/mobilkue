@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
+
 import CarForm from "../../components/CarForm";
 import { notFound } from "next/navigation";
 

@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
+
 import { Trash2, Edit, Plus, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import { deleteCar, toggleSoldStatus } from "@/app/actions/cars";

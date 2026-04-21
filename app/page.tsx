@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
+
 import CarCard from "@/components/CarCard";
 import Hero from "@/components/Hero";
 import TrustBar from "@/components/TrustBar";
